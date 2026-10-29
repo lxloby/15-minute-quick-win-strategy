@@ -1,0 +1,5 @@
+option,trades,win_rate,total_R
+A  zone edge,1235,30.93,-89.0
+D  zone edge +5p,1235,30.61,-101.0
+C  indicator swing,1235,32.63,-26.0
+B  structure (old),1235,33.04,-11.0

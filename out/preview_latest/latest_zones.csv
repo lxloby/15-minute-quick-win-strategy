@@ -1,0 +1,7 @@
+pair,#,direction,appeared_utc,appeared_broker,gmt,zone_top,zone_bottom,zone_candle_utc,zone_candle_broker,ended,ended_utc,bars_from_end
+EURUSD,1,bearish,2026-10-26 20:15,2026-10-26 23:15,+3,1.11794,1.11757,26 Oct 15:30,26 Oct 18:30,still live,-,59
+EURUSD,2,bullish,2026-10-21 17:45,2026-10-21 20:45,+3,1.12373,1.12274,21 Oct 13:30,21 Oct 16:30,mitigated,21 Oct 18:45,357
+EURUSD,3,bearish,2026-10-21 14:45,2026-10-21 17:45,+3,1.12308,1.12250,21 Oct 12:30,21 Oct 15:30,mitigated,21 Oct 16:30,369
+EURJPY,1,bearish,2026-10-27 09:00,2026-10-27 12:00,+3,176.02600,175.94100,27 Oct 05:00,27 Oct 08:00,still live,-,7
+EURJPY,2,bullish,2026-10-27 06:00,2026-10-27 09:00,+3,176.18600,176.15300,27 Oct 03:15,27 Oct 06:15,mitigated,27 Oct 06:30,19
+EURJPY,3,bullish,2026-10-23 14:30,2026-10-23 17:30,+3,175.69100,175.52400,23 Oct 11:00,23 Oct 14:00,mitigated,23 Oct 15:00,81

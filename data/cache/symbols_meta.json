@@ -1,0 +1,8 @@
+{
+  "EURUSD": {
+    "resolved": "EURUSD",
+    "digits": 5,
+    "point": 1e-05,
+    "pip_value_per_lot": 1.0
+  }
+}

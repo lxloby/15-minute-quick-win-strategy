@@ -1,0 +1,32 @@
+{
+  "GBPJPY:safe": {
+    "breakers": 6178,
+    "setups": 6178,
+    "rejected_session": 8153,
+    "rejected_news": 28,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 1301,
+    "rejected_sma": 5042
+  },
+  "GBPJPY:baseline": {
+    "breakers": 6178,
+    "setups": 6178,
+    "rejected_session": 6197,
+    "rejected_news": 20,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 1154,
+    "rejected_sma": 4048
+  },
+  "GBPJPY:filter_off": {
+    "breakers": 6178,
+    "setups": 6178,
+    "rejected_session": 8153,
+    "rejected_news": 28,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 1301,
+    "rejected_sma": 5042
+  }
+}

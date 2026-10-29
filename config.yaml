@@ -1,0 +1,264 @@
+# ============================================================================
+# "15 Minute Quick Win" backtest configuration
+# Every parameter the strategy spec mentions lives here.
+# ============================================================================
+
+paths:
+  data_dir: data          # parquet cache + news_calendar.csv
+  cache_dir: data/cache   # raw MT5 pulls, one parquet per symbol/timeframe
+  out_dir: out            # trades.csv, summaries, charts
+
+# ---------------------------------------------------------------------------
+# Data
+# ---------------------------------------------------------------------------
+mt5:
+  # Tried in order. Axi first - that is the feed we actually trade.
+  terminal_paths:
+    - 'C:\Program Files\Axi MetaTrader 5 Terminal\terminal64.exe'
+    - 'C:\Program Files\MetaTrader 5\terminal64.exe'
+  # Earliest year to probe when walking backwards for the start of history.
+  probe_from_year: 2003
+  # Seconds to wait between retries while the terminal streams history in.
+  retry_sleep: 3
+  retries: 3
+
+data:
+  symbols: [EURJPY, EURUSD, CHFJPY]
+  signal_timeframe: M15
+  intrabar_timeframe: M1
+  # Backtest window (UTC), bounded at BOTH ends by the news calendar so that
+  # every trade in the results was actually news-filtered. M15 history goes
+  # back to 2001-12-31, but the calendar's first usable high-impact event is
+  # 2007-01-03 and its last is 2025-04-04; running outside that would mix
+  # filtered and unfiltered trades in one equity curve.
+  start_date: "2007-01-03"
+  end_date: "2025-04-07"
+
+  # Per-symbol overrides of the window above.
+  # CHFJPY is held to 2023+ deliberately: its early history is dominated by
+  # the SNB era - the 2011 floor (-8.0% in a day) and the 2015-01-15 unpeg
+  # (+17.9% in a day, a 31% daily range). Those are not the market this
+  # strategy is being tested on. The cost is sample size: ~2.3 years.
+  symbol_windows:
+    CHFJPY:
+      start_date: "2023-01-01"
+
+  # The Axi feed prints phantom wide-range bars at the daily rollover - 97%
+  # of them at 21:00/22:00 UTC, heavily concentrated in 2014-2018 and almost
+  # absent after 2019. They are inside the trading session, and a phantom
+  # range closes trades that were never really touched, so they are clipped
+  # back to their neighbours by default. Set false to leave the feed untouched;
+  # the run reports how many bars were affected either way.
+  # See qw/data/quality.py for how a bad print is told apart from a real shock.
+  clean_suspect_bars: true
+  suspect_bar:
+    window: 96          # bars either side used for the local median range
+    range_mult: 8.0     # multiples of that median which count as extreme
+    persist_tol: 0.25   # how much of the spike must survive to be a real move
+  # Pip size per symbol. JPY crosses quote to 3 decimals -> pip = 0.01;
+  # everything else here is 5-digit -> pip = 0.0001.
+  # A symbol missing from this list stops the run rather than guessing.
+  pip_size:
+    EURJPY: 0.01
+    EURUSD: 0.0001
+    CHFJPY: 0.01
+    GBPJPY: 0.01
+    AUDJPY: 0.01
+    CADJPY: 0.01
+    NZDJPY: 0.01
+    USDJPY: 0.01
+    GBPUSD: 0.0001
+    AUDUSD: 0.0001
+    USDCHF: 0.0001
+    USDCAD: 0.0001
+    EURGBP: 0.0001
+
+# ---------------------------------------------------------------------------
+# Costs
+# ---------------------------------------------------------------------------
+costs:
+  # MT5 bars are BID. Longs fill at ask (bid + spread); shorts exit at ask.
+  use_spread_column: true
+  # Fallback if the spread column is missing/zero, in points (not pips).
+  fallback_spread_points: 0
+  # Account-currency commission for a 1.0-lot ROUND TURN. Raw accounts: set it.
+  commission_per_lot_round_turn: 0.0
+
+# ---------------------------------------------------------------------------
+# Indicators
+# ---------------------------------------------------------------------------
+indicators:
+  sma:
+    length: 44
+    source: close
+
+  # Breaker Blocks with Signals [LuxAlgo] - defaults match the published script
+  breaker:
+    length: 5                     # 'Length' (Market Structure). Pivot left bars; right is fixed at 1.
+    use_only_candle_body: false   # breakerCandleOnlyBody
+    use_2_candles: false          # breakerCandle_2Last
+    till_first_break: true        # tillFirstBreak
+    only_when_in_pd_array: false  # onlyWhenInPDarray
+    # Pine's `per` limits drawing to the last 2000 bars of the chart. That is a
+    # rendering limit, not strategy logic - null applies the indicator to all history.
+    recent_bars_only: null
+    # Pine holds exactly ONE `block BB` object, so a new MSS overwrites the
+    # previous breaker. true reproduces that; false keeps every zone alive.
+    single_active_zone: true
+    # Pine's ta.pivothigh/low tie handling.
+    #   'left_eq' - the centre bar may EQUAL bars on its left, but must beat
+    #               the bar on its right. This is what TradingView does.
+    #   'strict'  - the centre must beat both windows outright.
+    #
+    # VERIFIED 2026-10-27 against the real indicator on TradingView. This was
+    # 'strict' until then, on the assumption that exact ties are rare on FX
+    # M15. They are not: 'strict' discards ~11% of all pivots (EURUSD
+    # 128,853 -> 144,117 under left_eq), and because the zig-zag is
+    # path-dependent and MSS.dir latches, one missed pivot can suppress every
+    # zone for days. EURUSD went six days with no zone while TradingView drew
+    # one. 'left_eq' reproduced it exactly: 26 Oct 20:15 UTC, 1.11757-1.11794.
+    # left_eq is a strict superset - it never removes a zone, only adds.
+    pivot_tie_mode: left_eq
+
+# ---------------------------------------------------------------------------
+# Strategy
+# ---------------------------------------------------------------------------
+strategy:
+  # Pivot length for the "lower high"/"higher low" structure test.
+  # null -> inherit indicators.breaker.length
+  swing_pivot_length: null
+
+  longs_enabled: true
+  shorts_enabled: true
+
+  # What has to agree before a zone is tradeable.
+  #   'both'           - the LuxAlgo zone AND a break of a lower high /
+  #                      higher low (the original spec; stricter)
+  #   'indicator_only' - the LuxAlgo zone alone. The indicator's own market
+  #                      structure shift IS the structure test, so this does
+  #                      not drop the structure requirement, it just stops
+  #                      demanding a second, different one.
+  entry_mode: indicator_only
+
+  # Where the SMA44 filter is applied.
+  #   'break' - on the candle that breaks structure (original spec)
+  #   'tap'   - at the retrace into the zone, judged on the last COMPLETED
+  #             bar's SMA and close, so nothing peeks at the tap bar's close
+  sma_check: tap
+
+  # When an untapped zone stops being a valid setup.
+  #   'session_end' - at filters.session.end_utc following its appearance
+  #   'bars'        - max_bars_to_entry bars after it appeared
+  #   null          - only when the indicator itself invalidates it
+  zone_expiry: session_end
+
+  # Where the stop hangs off. This is the single biggest driver of stop size,
+  # and therefore of everything downstream (position size, how far 2R is, and
+  # whether a fixed-pip partial means anything).
+  #   'structure'       - most recent confirmed swing before the zone appeared.
+  #                       Median stop 35-60 pips depending on the pair.
+  #   'zone'            - the far edge of the breaker block only.
+  #                       Median stop 10-19 pips, i.e. the original spec's range.
+  #   'indicator_swing' - the swing the LuxAlgo zone search is bounded by (C).
+  # Pair with sl_buffer_pips for "zone edge plus a little room".
+  stop_reference: structure
+
+  sl_buffer_pips: 0.0        # extra room beyond whichever reference is used
+  risk_reward: 2.0           # TP = entry +/- 2R
+
+  # Disabled: it was rejecting more than half of all surviving setups.
+  # The run still reports the full SL distribution with this off.
+  sl_distance_filter:
+    enabled: false
+    min_pips: 10.0
+    max_pips: 20.0
+
+  # The stop must sit beyond the WHOLE breaker block, never inside it:
+  # below the zone bottom for longs, above the zone top for shorts. Without
+  # this, a structural swing that falls inside the zone puts the stop between
+  # entry and the far edge, where ordinary movement inside the zone takes it
+  # out. Risk is therefore never smaller than the zone height plus spread.
+  sl_beyond_zone: true
+
+  # ---- Day-trade constraints ------------------------------------------
+  # Without these a setup can hang around for days, which makes it a
+  # different trade from the one intended. Measured on CHFJPY 2023-2025
+  # (M15 bars; 44 bars = one 12:00-23:00 session, 96 = 24h):
+  #
+  #   break -> breaker appears : median 5,  p90 128,  max 451
+  #   breaker -> entry tap     : median 3,  p90  24,  max 373
+  #
+  # Bars allowed between the structure break and the breaker appearing.
+  # 44 keeps it inside one session and covers 73% of what used to qualify.
+  max_bars_break_to_zone: 44
+  # Bars allowed between the breaker appearing and the retrace tap.
+  # 24 covers 90%. null = until the zone is invalidated or superseded.
+  max_bars_to_entry: 24
+
+  one_trade_per_symbol: true
+  one_trade_per_zone: true
+
+  # Which indicator states kill a zone for entry purposes.
+  invalidate_on_mitigated: true   # close beyond the far edge
+  invalidate_on_broken: true      # close through the zone mid-line ("cancel")
+
+# ---------------------------------------------------------------------------
+# Filters
+# ---------------------------------------------------------------------------
+filters:
+  session:
+    enabled: true
+    start_utc: "12:00"    # 20:00 SGT
+    end_utc: "23:00"      # 07:00 SGT next day
+    # Trades already open may be managed outside the window.
+    manage_outside_window: true
+
+  news:
+    enabled: true
+    csv: data/news_calendar.csv
+    impacts: [High]
+    minutes_before: 30
+    minutes_after: 30
+    # MUST cover both currencies of every pair in data.symbols, AND
+    # data/news_calendar.csv must have been built with them included --
+    # convert_calendar.py filters to this list when it writes the file.
+    # Adding a currency here does nothing until the calendar is rebuilt.
+    # The run checks this and stops rather than filtering silently on nothing.
+    currencies: [EUR, USD, JPY, CHF, GBP, AUD, CAD, NZD]
+
+# ---------------------------------------------------------------------------
+# Trade management
+# ---------------------------------------------------------------------------
+management:
+  methods: [safe, baseline]
+
+  safe:
+    partial_trigger_pips: 10.0   # +10 pips in profit
+    partial_fraction: 0.5        # close 50%
+    move_to_breakeven: true      # remainder SL -> entry + costs
+    be_includes_costs: true
+
+  baseline:
+    partial_trigger_pips: null
+    partial_fraction: 0.0
+    move_to_breakeven: false
+
+  # If SL and target fall inside the same bar and M1 cannot separate them,
+  # assume the worse outcome.
+  ambiguous_bar_resolution: worst
+
+  # Force the position flat after this many M15 bars (96 = 24h, 44 = one
+  # 12:00-23:00 session). null = run to stop or target however long it takes.
+  # CAVEAT, see README: holding time is mostly an OUTCOME, not a cause.
+  # Losers hit the stop quickly; winners need time to travel 2R. Cutting long
+  # trades therefore truncates winners rather than removing losers.
+  max_bars_in_trade: null
+
+# ---------------------------------------------------------------------------
+# Reporting
+# ---------------------------------------------------------------------------
+reporting:
+  risk_per_trade_pct: 1.0
+  display_timezone: Asia/Singapore   # hour-of-entry breakdown
+  sample_charts_per_direction: 10
+  random_seed: 42

@@ -1,0 +1,22 @@
+{
+  "EURJPY:baseline": {
+    "breakers": 6102,
+    "setups": 6102,
+    "rejected_session": 6083,
+    "rejected_news": 35,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 1122,
+    "rejected_sma": 3590
+  },
+  "EURJPY:filter_off": {
+    "breakers": 6102,
+    "setups": 6102,
+    "rejected_session": 6083,
+    "rejected_news": 35,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 1122,
+    "rejected_sma": 3590
+  }
+}

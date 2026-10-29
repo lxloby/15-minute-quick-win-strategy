@@ -1,0 +1,32 @@
+{
+  "EURJPY:safe": {
+    "breakers": 5828,
+    "setups": 5828,
+    "rejected_session": 7337,
+    "rejected_news": 40,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 1207,
+    "rejected_sma": 4635
+  },
+  "EURJPY:baseline": {
+    "breakers": 5828,
+    "setups": 5828,
+    "rejected_session": 5611,
+    "rejected_news": 35,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 1104,
+    "rejected_sma": 3559
+  },
+  "EURJPY:filter_off": {
+    "breakers": 5828,
+    "setups": 5828,
+    "rejected_session": 7337,
+    "rejected_news": 40,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 1207,
+    "rejected_sma": 4635
+  }
+}

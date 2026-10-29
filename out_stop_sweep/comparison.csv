@@ -1,0 +1,5 @@
+option,trades,med_SL_pips,win_rate,break_even,total_R,expectancy_R,profit_factor,max_dd_R,t,in_10_20_pct
+A  zone edge,1593,13.5,31.45,33.33,-90.0,-0.0565,0.918,113.0,-1.62,43.1
+D  zone edge +5p,1572,18.5,31.3,33.33,-96.0,-0.0611,0.911,109.0,-1.74,53.8
+C  indicator swing,1495,25.5,32.31,33.33,-46.0,-0.0308,0.955,58.0,-0.85,28.0
+B  structure (old),1246,43.7,33.31,33.33,-1.0,-0.0008,0.999,44.0,-0.02,9.0

@@ -1,0 +1,32 @@
+{
+  "EURUSD:safe": {
+    "breakers": 7153,
+    "setups": 7153,
+    "rejected_session": 8926,
+    "rejected_news": 477,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 1425,
+    "rejected_sma": 5243
+  },
+  "EURUSD:baseline": {
+    "breakers": 7153,
+    "setups": 7153,
+    "rejected_session": 7121,
+    "rejected_news": 403,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 1277,
+    "rejected_sma": 4181
+  },
+  "EURUSD:filter_off": {
+    "breakers": 7153,
+    "setups": 7153,
+    "rejected_session": 8926,
+    "rejected_news": 477,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 1425,
+    "rejected_sma": 5243
+  }
+}

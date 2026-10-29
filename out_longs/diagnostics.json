@@ -1,0 +1,26 @@
+{
+  "CHFJPY:safe": {
+    "breakers": 852,
+    "setups": 346,
+    "rejected_session": 690,
+    "rejected_news": 0,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0
+  },
+  "CHFJPY:baseline": {
+    "breakers": 852,
+    "setups": 346,
+    "rejected_session": 572,
+    "rejected_news": 0,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0
+  },
+  "CHFJPY:filter_off": {
+    "breakers": 852,
+    "setups": 346,
+    "rejected_session": 690,
+    "rejected_news": 0,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0
+  }
+}

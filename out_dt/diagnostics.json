@@ -1,0 +1,29 @@
+{
+  "CHFJPY:safe": {
+    "breakers": 852,
+    "setups": 523,
+    "rejected_session": 875,
+    "rejected_news": 0,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 136
+  },
+  "CHFJPY:baseline": {
+    "breakers": 852,
+    "setups": 523,
+    "rejected_session": 805,
+    "rejected_news": 0,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 135
+  },
+  "CHFJPY:filter_off": {
+    "breakers": 852,
+    "setups": 523,
+    "rejected_session": 875,
+    "rejected_news": 0,
+    "rejected_sl_size": 0,
+    "rejected_busy": 0,
+    "rejected_stale_zone": 136
+  }
+}
